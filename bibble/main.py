@@ -21,7 +21,9 @@ MONTHS = {
 
 def _author_fmt(author):
     """Format an author's full name."""
-    return u' '.join(author.first() + author.middle() + author.last())
+    author_fullname = u' '.join(author.first_names + author.middle_names + author.last_names)
+    # remove {} from author's names (useful only for TeX/LaTeX)
+    return author_fullname.replace('{','').replace('}','')
 
 
 def _andlist(ss, sep=', ', seplast=', and ', septwo=' and '):
@@ -52,6 +54,11 @@ def _venue_type(entry):
         venuetype = 'Ph.D. thesis, {}'.format(entry.fields['school'])
     elif entry.type == 'mastersthesis':
         venuetype = 'Master\'s thesis, {}'.format(entry.fields['school'])
+    elif entry.type == 'patent':
+        if entry.fields['type'] =='patreq':
+            venuetype = 'Patent Application'
+        else:
+            venuetype = 'Patent'
     return venuetype
 
 
@@ -77,7 +84,7 @@ def _venue(entry):
         venue = f['title']
     elif entry.type == 'techreport':
         venue = '{0}, {1}'.format(f['number'], f['institution'])
-    elif entry.type == 'phdthesis' or entry.type == 'mastersthesis':
+    elif entry.type in {'phdthesis', 'mastersthesis', 'patent'}:
         venue = ''
     else:
         venue = 'Unknown venue (type={})'.format(entry.type)
